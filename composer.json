@@ -1,0 +1,19 @@
+{
+    "name": "inpsyde/behat-test-wp-content",
+    "description": "A Behat test for a wp-content repository",
+    "type": "wordpress-content",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "David Remer",
+            "email": "d.remer@inpsyde.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "require-dev": {
+        "paulgibbs/behat-wordpress-extension": "dev-master",
+        "behat/mink-goutte-driver": "^1.2@dev",
+        "behat/mink-selenium2-driver": "^1.3@dev"
+    }
+}
