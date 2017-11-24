@@ -54,6 +54,9 @@ before_script:
   - echo "start WP CLI"
   - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
   - php wp-cli.phar --info
+  - chmod +x wp-cli.phar
+  - sudo mv wp-cli.phar /usr/local/bin/wp
+  - wp --info
   - php wp-cli.phar core download
   - rm wp-content -r
   - ln -s ../wp-content-tmp ./wp-content
