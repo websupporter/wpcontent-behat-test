@@ -37,6 +37,16 @@ before_script:
 
   - sed -i "s|full-path-to-repo|$TRAVIS_BUILD_DIR|g" behat.yml
 
+  # start apache
+  - sudo apt-get install apache2
+  - sudo a2enmod actions
+  - sudo a2enmod rewrite
+  - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
+  - echo "$(cat .tests/_data/.apache-phpenv)" | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
+  - echo "$(cat .tests/_data/.apache-hostfile)" | sed -e "s,PATH,`pwd`/public,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+  - sudo service apache2 restart
+
+  # configure WP
   - cd public
 
   # start wp-cli
@@ -51,15 +61,6 @@ before_script:
   - php wp-cli.phar theme activate sosimple
   - php wp-cli.phar plugin activate plugin-1
   - php wp-cli.phar plugin activate plugin-2
-
-  # start apache
-  - sudo apt-get install apache2
-  - sudo a2enmod actions
-  - sudo a2enmod rewrite
-  - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
-  - echo "$(cat tests/_data/.apache-phpenv)" | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
-  - echo "$(cat tests/_data/.apache-hostfile)" | sed -e "s,PATH,`pwd`/public,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
-  - sudo service apache2 restart
 # Run main commands
 script:
   - vendor/bin/behat
