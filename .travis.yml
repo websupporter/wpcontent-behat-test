@@ -64,6 +64,8 @@ before_script:
   - php wp-cli.phar plugin activate plugin-2
 # Run main commands
 script:
+  - ls
+  - cd ../
   - vendor/bin/behat
 
 #after_script:
