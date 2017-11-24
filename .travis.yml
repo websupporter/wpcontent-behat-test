@@ -13,6 +13,9 @@ sudo: required
 before_install: phpenv config-rm xdebug.ini
 
 install:
+  - mkdir wp-content-tmp/
+  - cp ./* ./wp-content-tmp -r
+  - mkdir ./public
   - composer install --no-interaction
 
 before_script:
@@ -34,9 +37,6 @@ before_script:
 
   - sed -i "s|full-path-to-repo|$TRAVIS_BUILD_DIR|g" behat.yml
 
-  - mkdir wp-content-tmp/
-  - cp ./* ./wp-content-tmp
-  - mkdir ./public
   - cd public
 
   # start wp-cli
