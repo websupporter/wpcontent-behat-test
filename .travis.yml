@@ -1,12 +1,8 @@
 language: php
 
-# The platforms you wants to test on
 os:
   - linux
 
-#addons
-
-# git configs
 git:
   depth: 1
 
@@ -79,9 +75,3 @@ after_failure:
 # Tell Travis CI to monitor only 'master' branch
 branches:
   only: master
-
-# Cache folder, you can delete cache from Travis CI web interface
-cache:
-    directories:
-        - vendor
-- $HOME/.composer/cache
