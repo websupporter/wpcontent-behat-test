@@ -1,0 +1,87 @@
+language: php
+
+# The platforms you wants to test on
+os:
+  - linux
+
+#addons
+
+# git configs
+git:
+  depth: 1
+
+php:
+  - 7.0
+sudo: required
+
+before_install: phpenv config-rm xdebug.ini
+
+install:
+  - composer install --no-interaction
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+
+  # Create database
+  - mysql -e 'CREATE DATABASE wordpress_db;' -uroot
+  - mysql -ve "CREATE USER 'wordpress_user'@'localhost' IDENTIFIED BY 'wordpress_db_password'" -uroot
+  - mysql -ve "GRANT ALL ON wordpress_db.* TO 'wordpress_user'@'localhost'" -uroot
+  - mysql -ve "FLUSH PRIVILEGES" -uroot
+
+  - wget -c -nc --retry-connrefused --tries=0 http://goo.gl/EoH85x -O selenium-server-standalone.jar
+
+  # start selenium
+  - echo "Run selenium server - background process"
+  - nohup bash -c "java -jar selenium-server-standalone.jar &" && sleep 1; cat nohup.out
+
+  - sed -i "s|full-path-to-repo|$TRAVIS_BUILD_DIR|g" behat.yml
+
+  - mkdir wp-content-tmp/
+  - cp ./* ./wp-content-tmp
+  - mkdir ./public
+  - cd public
+
+  # start wp-cli
+  - echo "start WP CLI"
+  - curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+  - php wp-cli.phar --info
+  - php wp-cli.phar core download
+  - rm wp-content -r
+  - ln -s ../wp-content-tmp ./wp-content
+  - php wp-cli.phar config create --dbname=wordpress_db --dbuser=wordpress_user --dbpass=wordpress_db_password
+  - php wp-cli.phar core install --url=localhost --title=Test --admin_user=supervisor --admin_password=strongpassword --admin_email=d.remer@inpsyde.com
+  - php wp-cli.phar theme activate sosimple
+  - php wp-cli.phar plugin activate plugin-1
+  - php wp-cli.phar plugin activate plugin-2
+
+  # start apache
+  - sudo apt-get install apache2
+  - sudo a2enmod actions
+  - sudo a2enmod rewrite
+  - echo "export PATH=/home/vagrant/.phpenv/bin:$PATH" | sudo tee -a /etc/apache2/envvars > /dev/null
+  - echo "$(cat tests/_data/.apache-phpenv)" | sudo tee /etc/apache2/conf.d/phpconfig > /dev/null
+  - echo "$(cat tests/_data/.apache-hostfile)" | sed -e "s,PATH,`pwd`/public,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+  - sudo service apache2 restart
+# Run main commands
+script:
+  - vendor/bin/behat
+
+#after_script:
+
+#after_success:
+
+after_failure:
+  - wget http://localhost
+  - cat tests/_output/FirstCest.homepage_test.fail.html
+
+# Tell Travis CI to monitor only 'master' branch
+branches:
+  only: master
+
+# Cache folder, you can delete cache from Travis CI web interface
+cache:
+    directories:
+        - vendor
+- $HOME/.composer/cache

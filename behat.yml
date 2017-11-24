@@ -16,7 +16,7 @@ default:
 
   extensions:
     Behat\MinkExtension:
-      base_url: http://localhost/inpsyde/tmp/
+      base_url: http://localhost/
       browser_name: chrome
       default_session: default
       javascript_session: selenium2
@@ -30,7 +30,7 @@ default:
 
     PaulGibbs\WordpressBehatExtension:
       default_driver: wpcli
-      path: /var/www/html/inpsyde/tmp/
+      path: full-path-to-repo/public
       users:
         admin:
           username: admin
