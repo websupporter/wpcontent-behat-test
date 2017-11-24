@@ -14,7 +14,7 @@ before_install: phpenv config-rm xdebug.ini
 
 install:
   - mkdir wp-content-tmp/
-  - cp ./* ./wp-content-tmp -r
+  - cp ./* ./wp-content-tmp -r || true
   - mkdir ./public
   - composer install --no-interaction
 
